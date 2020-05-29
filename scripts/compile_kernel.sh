@@ -13,7 +13,8 @@ BUILD_ROOT=/var/kernel_build
 BUILD_CACHE=$BUILD_ROOT/cache
 ARM_TOOLS=$BUILD_CACHE/tools
 LINUX_KERNEL=$BUILD_CACHE/linux-kernel
-LINUX_KERNEL_COMMIT=36612d5d7a88672a3e7dd6cb458dbbbca0d75efe # Linux 4.14.79 raspberrypi-kernel_1.20181112-1
+LINUX_KERNEL_COMMIT=9daee6141cc9c75b09659b02b1cb9eeb2f5e16cc
+#LINUX_KERNEL_COMMIT=36612d5d7a88672a3e7dd6cb458dbbbca0d75efe # Linux 4.14.79 raspberrypi-kernel_1.20181112-1
 # LINUX_KERNEL_COMMIT=675e29ff7124059cb3b8b56fd7ae0ea131196982 # Linux 4.14.70 raspberrypi-kernel_1.20180919-1
 # LINUX_KERNEL_COMMIT=f70eae405b5d75f7c41ea300b9f790656f99a203 # Linux 4.14.34
 # LINUX_KERNEL_COMMIT=be97febf4aa42b1d019ad24e7948739da8557f66 # Linux 4.9.80
@@ -50,20 +51,27 @@ BUILD_RESULTS=$BUILD_ROOT/results/kernel-$NEW_VERSION
 X64_CROSS_COMPILE_CHAIN=arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64
 
 declare -A CCPREFIX
-CCPREFIX["rpi1"]=$ARM_TOOLS/$X64_CROSS_COMPILE_CHAIN/bin/arm-linux-gnueabihf-
+#CCPREFIX["rpi1"]=$ARM_TOOLS/$X64_CROSS_COMPILE_CHAIN/bin/arm-linux-gnueabihf-
 CCPREFIX["rpi2_3"]=$ARM_TOOLS/$X64_CROSS_COMPILE_CHAIN/bin/arm-linux-gnueabihf-
+CCPREFIX["rpi4"]=$ARM_TOOLS/$X64_CROSS_COMPILE_CHAIN/bin/arm-linux-gnueabihf-
+
 
 declare -A ORIGDEFCONFIG
-ORIGDEFCONFIG["rpi1"]=bcmrpi_defconfig
+#ORIGDEFCONFIG["rpi1"]=bcmrpi_defconfig
 ORIGDEFCONFIG["rpi2_3"]=bcm2709_defconfig
+ORIGDEFCONFIG["rpi4"]=bcm2711_defconfig
 
 declare -A DEFCONFIG
-DEFCONFIG["rpi1"]=rpi1_docker_defconfig
+#DEFCONFIG["rpi1"]=rpi1_docker_defconfig
 DEFCONFIG["rpi2_3"]=rpi2_3_docker_defconfig
+DEFCONFIG["rpi4"]=rpi4_docker_defconfig
+
+
 
 declare -A IMAGE_NAME
-IMAGE_NAME["rpi1"]=kernel.img
+#IMAGE_NAME["rpi1"]=kernel.img
 IMAGE_NAME["rpi2_3"]=kernel7.img
+IMAGE_NAME["rpi4"]=kernelrpi4.img
 
 function create_dir_for_build_user () {
     local target_dir=$1
@@ -93,10 +101,11 @@ function clone_or_update_repo_for () {
     popd
   else
     echo "Cloning $repo_path with commit $repo_commit"
-    git clone $repo_url $repo_path
-    if [ ! -z "${repo_commit}" ]; then
-      cd $repo_path && git checkout -qf ${repo_commit}
-    fi
+    git clone --depth=1 $repo_url $repo_path
+    #git clone --depth=1 --branch <branch> https://github.com/raspberrypi/linux
+    #if [ ! -z "${repo_commit}" ]; then
+    #  cd $repo_path && git checkout -qf ${repo_commit}
+    #fi
   fi
 }
 
